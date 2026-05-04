@@ -21,11 +21,6 @@
 
 #define sl_packed __attribute__((packed))
 
-/* 中断优先级 */
-#define SL_PRIO_HIGHEST 0
-#define SL_PRIO_LOWEST 15
-#define SL_PRIO_DEFAULT 5
-
 /* 简化函数指针定义 */
 typedef void (*pfunc)(void);
 
@@ -91,36 +86,6 @@ void print_null(const char *sFormat, ...);
 #define sl_prt_noNewLine(sFormat, ...) SEGGER_RTT_printf(0, RTT_CTRL_TEXT_YELLOW sFormat RTT_CTRL_RESET, ##__VA_ARGS__, __func__)
 
 /* ============================================================== */
-/* 互斥任务相关服务 */
-
-extern char sl_init;
-extern char sl_free;
-
-/* 加载新任务 */
-void sl_load_new_task(void);
-
-/* 任务初始化宏 */
-#define SL_INIT                         \
-    if (sl_init == 1)                   \
-    {                                   \
-        sl_focus("enter %s", __func__); \
-        sl_init = 0;
-
-/* 任务释放宏 */
-#define SL_FREE       \
-    }                 \
-    if (sl_free == 1) \
-    {
-
-#define SL_RUN                     \
-    sl_focus("exit %s", __func__); \
-    sl_load_new_task();            \
-    sl_init = 1;                   \
-    sl_free = 0;                   \
-    return;                        \
-    }
-
-/* ============================================================== */
 /* Flow-based 协作式工作流编程 */
 
 /* 注意事项
@@ -163,7 +128,7 @@ enum
 #define FLOW_STOP(flow_name) flow_state_##flow_name = FLOW_FREE
 
 /* Flow 内部上下文 */
-#define SL_FLOW_CONTEXT(flow_name)                  \
+#define SL_FLOW_CONTEXT(flow_name)                \
     static uint32_t _flow_tick;                   \
     static uint32_t _flow_state;                  \
     static uint32_t _state_backup;                \
@@ -179,7 +144,7 @@ enum
     }
 
 /* 初始化区 */
-#define SL_FLOW_INIT       \
+#define SL_FLOW_INIT     \
     switch (_flow_state) \
     {                    \
     case FLOW_INIT:      \
@@ -187,7 +152,7 @@ enum
         sl_printf("FLOW_INIT");
 
 /* 清理区 */
-#define SL_FLOW_FREE(flow_name)    \
+#define SL_FLOW_FREE(flow_name)  \
     _flow_state = FLOW_RUN;      \
     break;                       \
     }                            \
@@ -197,7 +162,7 @@ enum
         sl_printf("FLOW_FREE");
 
 /* 运行区 */
-#define SL_FLOW_RUN            \
+#define SL_FLOW_RUN          \
     _flow_state = FLOW_INIT; \
     break;                   \
     }                        \
@@ -206,8 +171,8 @@ enum
 
 /* 结束 */
 #define SL_FLOW_END \
-    break;        \
-    }             \
+    break;          \
+    }               \
     }
 
 /* ===================== */
