@@ -116,7 +116,7 @@ void print_null(const char *sFormat, ...);
 /* ===================== */
 
 /* 条件等待（核心原语） */
-#define FLOW_UNTIL(cond)        \
+#define flow_until(cond)        \
     do                          \
     {                           \
         _flow_state = __LINE__; \
@@ -126,25 +126,25 @@ void print_null(const char *sFormat, ...);
     } while (0);
 
 /* 时间等待 */
-#define FLOW_WAIT(ms)                                              \
+#define flow_wait(ms)                                              \
     do                                                             \
     {                                                              \
         _flow_tick = sl_get_tick();                                \
-        FLOW_UNTIL((uint32_t)(sl_get_tick() - _flow_tick) >= (ms)) \
+        flow_until((uint32_t)(sl_get_tick() - _flow_tick) >= (ms)) \
     } while (0);
 
 /* 事件定义 */
-#define FLOW_EVENT_DEFINE(id) char flow_event_##id;
-#define FLOW_EVENT_DECLARE(id) extern char flow_event_##id;
+#define flow_event_define(id) char flow_event_##id;
+#define flow_event_declare(id) extern char flow_event_##id;
 
 /* 发送事件 */
-#define FLOW_SEND_EVENT(id) flow_event_##id = 1;
+#define flow_send_event(id) flow_event_##id = 1;
 
 /* 等待事件（消费型） */
-#define FLOW_WAIT_EVENT(id)          \
+#define flow_wait_event(id)          \
     do                               \
     {                                \
-        FLOW_UNTIL(flow_event_##id); \
+        flow_until(flow_event_##id); \
         flow_event_##id = 0;         \
     } while (0);
 

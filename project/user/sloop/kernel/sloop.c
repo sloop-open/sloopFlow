@@ -63,7 +63,7 @@ void sloop_init(void)
 }
 
 /* sloop 系统运行 */
-void sloop(void)
+void sloop_run(void)
 {
     /* 并发任务运行 */
     concurrent_task_run();
@@ -97,7 +97,7 @@ void system_heartbeat(void)
 
     count++;
 
-    FLOW_WAIT(1000);
+    flow_wait(1000);
 
     FLOW_END;
 }
@@ -120,7 +120,7 @@ void calcul_cpu_load(void)
 
     FLOW_BEGIN;
 
-    FLOW_WAIT(100);
+    flow_wait(100);
 
     loop_us = 1000000 / loop;
 
@@ -159,7 +159,7 @@ void load_warning(void)
 
     sl_error("cpu load over 80%%, reach %2d.%d%%, average loop time: %d.%d us", load / 10, load % 10, loop_us / 10, loop_us % 10);
 
-    FLOW_WAIT(1000);
+    flow_wait(1000);
 
     FLOW_END;
 }

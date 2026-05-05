@@ -36,7 +36,7 @@ void _main(void)
 
   while (1)
   {
-    sloop();
+    sloop_run();
   }
 }
 

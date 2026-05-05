@@ -15,7 +15,7 @@
 /* sloop 系统初始化 */
 void sloop_init(void);
 /* sloop 系统运行 */
-void sloop(void);
+void sloop_run(void);
 
 /* MCU tick 中断 */
 void sl_tick_irq(void);
