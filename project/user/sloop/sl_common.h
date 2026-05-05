@@ -21,6 +21,10 @@
 
 #define sl_packed __attribute__((packed))
 
+#define sl_unused __attribute__((unused))
+
+#define sl_used __attribute__((used))
+
 /* 简化函数指针定义 */
 typedef void (*pfunc)(void);
 
@@ -88,109 +92,37 @@ void print_null(const char *sFormat, ...);
 /* ============================================================== */
 /* Flow-based 协作式工作流编程 */
 
-/* 注意事项
- *  1.Flow 内部不能使用局部变量
-    2.flow 内部的用户状态机不能使用flow api,如FLOW_UNTIL
-    3.严格遵循 flow 模板
-    SL_FLOW_CONTEXT(flow_name)
-    SL_FLOW_INIT
-    SL_FLOW_FREE(flow_name)
-    SL_FLOW_RUN
-    SL_FLOW_END
-    4.事件是单一消费模型
- */
+#define FLOW_BEGIN                            \
+    static uint32_t _flow_state = 0;          \
+    sl_unused static uint32_t _flow_tick = 0; \
+    switch (_flow_state)                      \
+    {                                         \
+    case 0:
 
-/* 用于隔离用户状态机 ID 与flow ID */
-#define FLOW_OFFSET 4201
+#define FLOW_END     \
+    _flow_state = 0; \
+    return;          \
+    }
 
-/* Flow 状态 */
-enum
-{
-    FLOW_INIT = FLOW_OFFSET,
-    FLOW_FREE,
-    FLOW_RUN,
-    FLOW_IDLE,
-};
-
-/* Flow 状态定义 */
-#define FLOW_STATE_DEFINE(flow_name) uint32_t flow_state_##flow_name;
-#define FLOW_STATE_DECLARE(flow_name) extern uint32_t flow_state_##flow_name;
-
-/* Flow 启动 */
-#define FLOW_START(flow_name)               \
-    do                                      \
-    {                                       \
-        flow_state_##flow_name = FLOW_INIT; \
-        sl_task_start(flow_name);           \
+#define FLOW_RETURN      \
+    do                   \
+    {                    \
+        _flow_state = 0; \
+        return;          \
     } while (0);
-
-/* Flow 停止（外部） */
-#define FLOW_STOP(flow_name) flow_state_##flow_name = FLOW_FREE
-
-/* Flow 内部上下文 */
-#define SL_FLOW_CONTEXT(flow_name)                \
-    static uint32_t _flow_tick;                   \
-    static uint32_t _flow_state;                  \
-    static uint32_t _state_backup;                \
-    if (flow_state_##flow_name == FLOW_INIT)      \
-    {                                             \
-        _flow_state = FLOW_INIT;                  \
-        flow_state_##flow_name = FLOW_IDLE;       \
-    }                                             \
-    else if (flow_state_##flow_name == FLOW_FREE) \
-    {                                             \
-        _flow_state = FLOW_FREE;                  \
-        flow_state_##flow_name = FLOW_IDLE;       \
-    }
-
-/* 初始化区 */
-#define SL_FLOW_INIT     \
-    switch (_flow_state) \
-    {                    \
-    case FLOW_INIT:      \
-    {                    \
-        sl_printf("FLOW_INIT");
-
-/* 清理区 */
-#define SL_FLOW_FREE(flow_name)  \
-    _flow_state = FLOW_RUN;      \
-    break;                       \
-    }                            \
-    case FLOW_FREE:              \
-    {                            \
-        sl_task_stop(flow_name); \
-        sl_printf("FLOW_FREE");
-
-/* 运行区 */
-#define SL_FLOW_RUN          \
-    _flow_state = FLOW_INIT; \
-    break;                   \
-    }                        \
-    case FLOW_RUN:           \
-    {
-
-/* 结束 */
-#define SL_FLOW_END \
-    break;          \
-    }               \
-    }
 
 /* ===================== */
 /*      FLOW 原语        */
 /* ===================== */
 
-#define __FLOW_LINE__ (FLOW_OFFSET + 1024 + __LINE__)
-
 /* 条件等待（核心原语） */
-#define FLOW_UNTIL(cond)             \
-    do                               \
-    {                                \
-        _state_backup = _flow_state; \
-        _flow_state = __FLOW_LINE__; \
-    case __FLOW_LINE__:              \
-        if (!(cond))                 \
-            return;                  \
-        _flow_state = _state_backup; \
+#define FLOW_UNTIL(cond)        \
+    do                          \
+    {                           \
+        _flow_state = __LINE__; \
+    case __LINE__:              \
+        if (!(cond))            \
+            return;             \
     } while (0);
 
 /* 时间等待 */
@@ -215,17 +147,6 @@ enum
         FLOW_UNTIL(flow_event_##id); \
         flow_event_##id = 0;         \
     } while (0);
-
-/* Flow 内部停止 */
-#define FLOW_EXIT()              \
-    do                           \
-    {                            \
-        _flow_state = FLOW_FREE; \
-        return;                  \
-    } while (0);
-
-/* 业务状态机跳转 */
-#define FLOW_GOTO(case_id) _flow_state = case_id;
 
 #endif /* __sl_common_H */
 

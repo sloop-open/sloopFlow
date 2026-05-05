@@ -21,9 +21,6 @@ weak_define(task_baseInit);
 /* 空闲 */
 weak_define(task_idle);
 
-/* 演示 */
-weak_define(task_demo);
-
 /* 工作流编程演示 */
 weak_define(task_flow);
 
@@ -35,7 +32,7 @@ void _main(void)
   sloop_init();
 
   /* 跳转到第一个任务 */
-  sl_goto(task_baseInit);
+  sl_task_start(task_baseInit);
 
   while (1)
   {

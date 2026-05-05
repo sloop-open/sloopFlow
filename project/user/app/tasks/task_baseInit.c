@@ -11,16 +11,9 @@
 /* 基础驱动初始化 */
 void task_baseInit(void)
 {
-    /* 初次进入任务时，执行一次 */
-    SL_INIT;
+    sl_task_start(task_flow);
 
-    sl_goto(task_flow);
-
-    /* 任务结束，不再执行时，释放资源 */
-    SL_FREE;
-
-    /* 下方开始进入任务运行逻辑 */
-    SL_RUN;
+    sl_task_stop(task_baseInit);
 }
 
 /************************** END OF FILE **************************/

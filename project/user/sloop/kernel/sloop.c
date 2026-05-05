@@ -50,19 +50,14 @@ void sloop_init(void)
     sl_prt_brYellow("========= sloop  (^-^) ==========");
     sl_prt_brYellow("==================================");
 
-    /* 启用单次任务 */
-    sl_task_start(once_task_run);
-
     /* 启动 loop 计数 */
     sl_task_start(loop_counter);
 
     /* 启动 cpu 负载计算 */
-    sl_cycle_start(100, calcul_cpu_load);
+    sl_task_start(calcul_cpu_load);
 
     /* 启用系统心跳 */
-    sl_cycle_start(1000, system_heartbeat);
-
-    sl_printf("system heartbeat start");
+    sl_task_start(system_heartbeat);
 }
 
 /* sloop 系统运行 */
@@ -87,6 +82,8 @@ void system_heartbeat(void)
 {
     static int count;
 
+    FLOW_BEGIN;
+
     SEGGER_RTT_SetTerminal(1);
 
     sl_prt_var(count);
@@ -94,6 +91,10 @@ void system_heartbeat(void)
     SEGGER_RTT_SetTerminal(0);
 
     count++;
+
+    FLOW_WAIT(1000);
+
+    FLOW_END;
 }
 
 /* ============================================================== */
@@ -110,10 +111,11 @@ void loop_counter(void)
 /* 计算 cpu 负载 */
 void calcul_cpu_load(void)
 {
-    if (loop == 0)
-        return;
-
     static char warning;
+
+    FLOW_BEGIN;
+
+    FLOW_WAIT(100);
 
     loop_us = 1000000 / loop;
 
@@ -126,27 +128,35 @@ void calcul_cpu_load(void)
     {
         if (load > 800)
         {
-            sl_cycle_start(1000, load_warning);
+            sl_task_start(load_warning);
 
             warning = 1;
         }
-
-        return;
     }
-
-    /* 解除警告 */
-    if (load < 600)
+    else
     {
-        sl_cycle_stop(load_warning);
+        /* 解除警告 */
+        if (load < 600)
+        {
+            sl_task_stop(load_warning);
 
-        warning = 0;
+            warning = 0;
+        }
     }
+
+    FLOW_END;
 }
 
 /* 负载警告 */
 void load_warning(void)
 {
+    FLOW_BEGIN;
+
     sl_error("cpu load over 80%%, reach %2d.%d%%, average loop time: %d.%d us", load / 10, load % 10, loop_us / 10, loop_us % 10);
+
+    FLOW_WAIT(1000);
+
+    FLOW_END;
 }
 
 /* ============================================================== */

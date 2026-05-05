@@ -58,7 +58,6 @@ set(SLOOP_RTT_SOURCES
 set(USER_APP_SOURCES
     user/app/_main.c
     user/app/tasks/task_baseInit.c
-    user/app/tasks/task_demo.c
     user/app/tasks/task_flow.c
     user/app/tasks/task_idle.c
 )
