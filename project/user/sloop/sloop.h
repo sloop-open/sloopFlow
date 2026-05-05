@@ -23,10 +23,14 @@ void sl_tick_irq(void);
 /* 获取时间戳 */
 uint32_t sl_get_tick(void);
 
-/* 并行任务启动 */
+/* 并发任务启动 */
 void sl_task_start(pfunc task);
-/* 并行任务停止 */
+
+/* 并发任务停止 */
 void sl_task_stop(pfunc task);
+
+/* 流转任务切换 */
+void sl_goto(pfunc task);
 
 #endif /* __sloop_H */
 

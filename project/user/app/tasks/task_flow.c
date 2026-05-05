@@ -25,7 +25,7 @@ void task_flow(void)
     sl_task_start(flow_user);
     sl_task_start(flow_delivery);
 
-    sl_task_stop(task_flow);
+    sl_goto(task_idle);
 }
 
 void flow_user(void)

@@ -11,9 +11,7 @@
 /* 基础驱动初始化 */
 void task_baseInit(void)
 {
-    sl_task_start(task_flow);
-
-    sl_task_stop(task_baseInit);
+    sl_goto(task_flow);
 }
 
 /************************** END OF FILE **************************/

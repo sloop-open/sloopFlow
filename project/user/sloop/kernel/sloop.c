@@ -19,8 +19,10 @@
 
 void print_null(const char *sFormat, ...) {}
 
-/* 并行任务运行 */
-void parallel_task_run(void);
+/* 并发任务运行 */
+void concurrent_task_run(void);
+/* 流转任务运行 */
+void pipeline_task_run(void);
 
 /* ============================================================== */
 
@@ -63,8 +65,11 @@ void sloop_init(void)
 /* sloop 系统运行 */
 void sloop(void)
 {
-    /* 并行任务运行 */
-    parallel_task_run();
+    /* 并发任务运行 */
+    concurrent_task_run();
+
+    /* 流转任务运行 */
+    pipeline_task_run();
 }
 
 /* ============================================================== */
@@ -186,11 +191,11 @@ void sl_delay(int ms)
 
 /* ============================================================== */
 
-/* 并行任务注册表 */
+/* 并发任务注册表 */
 static pfunc task_reg[SL_PARALLEL_LIMIT];
 
-/* 并行任务运行 */
-void parallel_task_run(void)
+/* 并发任务运行 */
+void concurrent_task_run(void)
 {
     for (int i = 0; i < SL_PARALLEL_LIMIT; i++)
     {
@@ -201,7 +206,7 @@ void parallel_task_run(void)
     }
 }
 
-/* 并行任务 */
+/* 并发任务 */
 void sl_task_start(pfunc task)
 {
     sl_check_task_not_null();
@@ -239,6 +244,27 @@ void sl_task_stop(pfunc task)
 
             return;
         }
+    }
+}
+
+/* ============================================================== */
+
+static pfunc run_task;
+
+/* 流转任务切换 */
+void sl_goto(pfunc task)
+{
+    sl_check_task_not_null();
+
+    run_task = task;
+}
+
+/* 流转任务运行 */
+void pipeline_task_run(void)
+{
+    if (run_task != NULL)
+    {
+        run_task();
     }
 }
 
