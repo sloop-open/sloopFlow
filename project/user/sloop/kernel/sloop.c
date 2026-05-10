@@ -87,7 +87,7 @@ void system_heartbeat(void)
 {
     static int count;
 
-    FLOW_BEGIN;
+    SL_BEGIN;
 
     SEGGER_RTT_SetTerminal(1);
 
@@ -97,9 +97,9 @@ void system_heartbeat(void)
 
     count++;
 
-    flow_wait(1000);
+    sl_wait(1000);
 
-    FLOW_END;
+    SL_END;
 }
 
 /* ============================================================== */
@@ -118,9 +118,9 @@ void calcul_cpu_load(void)
 {
     static char warning;
 
-    FLOW_BEGIN;
+    SL_BEGIN;
 
-    flow_wait(100);
+    sl_wait(100);
 
     loop_us = 1000000 / loop;
 
@@ -149,19 +149,19 @@ void calcul_cpu_load(void)
         }
     }
 
-    FLOW_END;
+    SL_END;
 }
 
 /* ¸ºÔØ¾¯¸æ */
 void load_warning(void)
 {
-    FLOW_BEGIN;
+    SL_BEGIN;
 
     sl_error("cpu load over 80%%, reach %2d.%d%%, average loop time: %d.%d us", load / 10, load % 10, loop_us / 10, loop_us % 10);
 
-    flow_wait(1000);
+    sl_wait(1000);
 
-    FLOW_END;
+    SL_END;
 }
 
 /* ============================================================== */

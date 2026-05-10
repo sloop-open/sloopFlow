@@ -92,60 +92,60 @@ void print_null(const char *sFormat, ...);
 /* ============================================================== */
 /* Flow-based 协作式工作流编程 */
 
-#define FLOW_BEGIN                            \
-    static uint32_t _flow_state = 0;          \
-    sl_unused static uint32_t _flow_tick = 0; \
-    switch (_flow_state)                      \
-    {                                         \
+#define SL_BEGIN                            \
+    static uint32_t _sl_state = 0;          \
+    sl_unused static uint32_t _sl_tick = 0; \
+    switch (_sl_state)                      \
+    {                                       \
     case 0:
 
-#define FLOW_END     \
-    _flow_state = 0; \
-    return;          \
+#define SL_END     \
+    _sl_state = 0; \
+    return;        \
     }
 
-#define FLOW_RETURN      \
-    do                   \
-    {                    \
-        _flow_state = 0; \
-        return;          \
+#define SL_RETURN      \
+    do                 \
+    {                  \
+        _sl_state = 0; \
+        return;        \
     } while (0);
 
 /* ===================== */
-/*      FLOW 原语        */
+/*      FLOW 原语         */
 /* ===================== */
 
 /* 条件等待（核心原语） */
-#define flow_until(cond)        \
-    do                          \
-    {                           \
-        _flow_state = __LINE__; \
-    case __LINE__:              \
-        if (!(cond))            \
-            return;             \
+#define sl_until(cond)        \
+    do                       \
+    {                        \
+        _sl_state = __LINE__; \
+    case __LINE__:           \
+        if (!(cond))         \
+            return;          \
     } while (0);
 
 /* 时间等待 */
-#define flow_wait(ms)                                              \
-    do                                                             \
-    {                                                              \
-        _flow_tick = sl_get_tick();                                \
-        flow_until((uint32_t)(sl_get_tick() - _flow_tick) >= (ms)) \
+#define sl_wait(ms)                                            \
+    do                                                         \
+    {                                                          \
+        _sl_tick = sl_get_tick();                              \
+        sl_until((uint32_t)(sl_get_tick() - _sl_tick) >= (ms)) \
     } while (0);
 
 /* 事件定义 */
-#define flow_event_define(id) char flow_event_##id;
-#define flow_event_declare(id) extern char flow_event_##id;
+#define sl_event_define(id) char sl_event_##id;
+#define sl_event_declare(id) extern char sl_event_##id;
 
 /* 发送事件 */
-#define flow_send_event(id) flow_event_##id = 1;
+#define sl_send_event(id) sl_event_##id = 1;
 
 /* 等待事件（消费型） */
-#define flow_wait_event(id)          \
-    do                               \
-    {                                \
-        flow_until(flow_event_##id); \
-        flow_event_##id = 0;         \
+#define sl_wait_event(id)          \
+    do                            \
+    {                             \
+        sl_until(sl_event_##id);  \
+        sl_event_##id = 0;        \
     } while (0);
 
 #endif /* __sl_common_H */

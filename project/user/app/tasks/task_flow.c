@@ -9,11 +9,11 @@
 #include "common.h"
 
 /* 下单事件 */
-flow_event_define(evt_order);
+sl_event_define(evt_order);
 /* 外卖送达事件 */
-flow_event_define(evt_arrive);
+sl_event_define(evt_arrive);
 /* 用餐完成事件 */
-flow_event_define(evt_eat);
+sl_event_define(evt_eat);
 
 void flow_user(void);
 void flow_delivery(void);
@@ -30,66 +30,66 @@ void task_flow(void)
 
 void flow_user(void)
 {
-    FLOW_BEGIN;
+    SL_BEGIN;
 
     /* 下单 */
     sl_printf("user: Place an order");
-    flow_send_event(evt_order);
+    sl_send_event(evt_order);
 
     sl_task_start(flow_eat);
     sl_task_start(flow_watch);
 
     /* 等待用餐完成 */
-    flow_wait_event(evt_eat);
+    sl_wait_event(evt_eat);
 
     /* 结束示例 */
     sl_task_stop(flow_watch);
     sl_task_stop(flow_delivery);
     sl_task_stop(flow_user);
 
-    FLOW_END;
+    SL_END;
 }
 
 void flow_watch(void)
 {
-    FLOW_BEGIN;
+    SL_BEGIN;
 
     sl_printf("user: Watching drama...");
-    flow_wait(1000);
+    sl_wait(1000);
 
-    FLOW_END;
+    SL_END;
 }
 
 void flow_delivery(void)
 {
-    FLOW_BEGIN;
+    SL_BEGIN;
 
-    flow_wait_event(evt_order);
+    sl_wait_event(evt_order);
     sl_printf("delivery: Prepare meal");
 
-    flow_wait(3000);
-    flow_send_event(evt_arrive);
+    sl_wait(3000);
+    sl_send_event(evt_arrive);
     sl_printf("delivery: Delivered");
 
-    FLOW_END;
+    SL_END;
 }
 
 void flow_eat(void)
 {
-    FLOW_BEGIN;
+    SL_BEGIN;
 
     /* 等待外卖送达 */
-    flow_wait_event(evt_arrive);
+    sl_wait_event(evt_arrive);
     sl_printf("eat: Takeaway arrived, start eating");
 
-    flow_wait(2000);
+    sl_wait(2000);
     sl_printf("eat: Finished eating");
 
-    flow_send_event(evt_eat);
+    sl_send_event(evt_eat);
 
     sl_task_stop(flow_eat);
 
-    FLOW_END;
+    SL_END;
 }
 
 /************************** END OF FILE **************************/
