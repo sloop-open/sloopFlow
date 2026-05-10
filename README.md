@@ -110,20 +110,20 @@ void sl_goto(pfunc task);
 
 ```c
 /* 定义事件 */
-flow_event_define(evt_name);
+sl_event_define(evt_name);
 
 /* 发送事件 */
-flow_send_event(evt);
+sl_send_event(evt);
 
 /* 等待事件 */
-flow_wait_event(evt);
+sl_wait_event(evt);
 
 /* 延时等待 */
-flow_wait(ms);
+sl_wait(ms);
 
 /* 工作流宏 */
-FLOW_BEGIN;
-FLOW_END;
+SL_BEGIN;
+SL_END;
 ```
 
 ## 工作流编程示例
@@ -132,22 +132,22 @@ FLOW_END;
 
 ```c
 /* 定义事件 */
-flow_event_define(evt_order);    // 下单事件
-flow_event_define(evt_arrive);   // 送达事件
-flow_event_define(evt_eat);      // 用餐完成事件
+sl_event_define(evt_order);    // 下单事件
+sl_event_define(evt_arrive);   // 送达事件
+sl_event_define(evt_eat);      // 用餐完成事件
 
 void flow_user(void) {
-    FLOW_BEGIN;
+    SL_BEGIN;
     
     sl_printf("user: Place an order");
-    flow_send_event(evt_order);   // 发送下单事件
+    sl_send_event(evt_order);   // 发送下单事件
     
-    sl_task_start(flow_eat);      // 启动用餐任务
-    sl_task_start(flow_watch);    // 启动追剧任务
+    sl_task_start(flow_eat);    // 启动用餐任务
+    sl_task_start(flow_watch);  // 启动追剧任务
     
-    flow_wait_event(evt_eat);     // 等待用餐完成
+    sl_wait_event(evt_eat);     // 等待用餐完成
     
-    FLOW_END;
+    SL_END;
 }
 ```
 
